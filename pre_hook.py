@@ -1,21 +1,23 @@
 import sys
 import os
-import google.generativeai as genai
+from openai import OpenAI
 
 
 def translate(text):
-    api_key = os.environ.get("GOOGLE_API_KEY")
+    api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:
         print(text)
         sys.exit(0)
 
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel("gemini-2.0-flash")
-    response = model.generate_content(
-        f"Translate the following Chinese text to English. "
-        f"Output ONLY the translated English text, nothing else.\n\n{text}"
+    client = OpenAI(api_key=api_key)
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": "Translate the following Chinese text to English. Output ONLY the translated English text, nothing else."},
+            {"role": "user", "content": text},
+        ],
     )
-    print(response.text.strip())
+    print(response.choices[0].message.content.strip())
 
 
 if __name__ == "__main__":
